@@ -19,7 +19,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title><?php echo $post['title']; ?> - Blog</title>
+        <title><?php echo $post['title']; ?> - Eweberenic Blogs</title>
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="utf-8" />
@@ -42,7 +42,7 @@
                     <div class="card shadow-sm bg-light text-dark">
                         <div class="card-body">
                             <h1 class="card-title text-center mb-4"><?php echo $post['title']; ?></h1>
-
+                            <hr>
                             <div class="row">
                                 <div class="col-md-8">
                                     <p class="card-text"><?php echo nl2br($post['content']); ?></p>

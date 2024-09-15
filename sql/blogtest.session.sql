@@ -22,3 +22,6 @@ ALTER TABLE posts ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(
 
 ALTER TABLE posts
 ADD COLUMN comments TEXT;
+
+ALTER TABLE posts
+DROP COLUMN comments;
