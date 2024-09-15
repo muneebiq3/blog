@@ -1,19 +1,18 @@
 <?php
-include 'db.php';
 
-$query = "
-    SELECT posts.*, users.name, users.email 
-    FROM posts 
-    LEFT JOIN users ON posts.user_id = users.id 
-    ORDER BY posts.created_at DESC
-";
-$result = $conn->query($query);
+    include 'db.php';
+    $query = 
+    "   SELECT posts.*, users.name, users.email 
+        FROM posts 
+        LEFT JOIN users ON posts.user_id = users.id 
+        ORDER BY posts.created_at DESC  ";
+    $result = $conn->query($query);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Blog Posts</title>
+        <title>Eweberinc Blogs</title>
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="utf-8" />

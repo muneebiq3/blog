@@ -1,57 +1,57 @@
 <?php
-include 'db.php';
+    include 'db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $image = $_FILES['image'];
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $title = $_POST['title'];
+        $content = $_POST['content'];
+        $image = $_FILES['image'];
 
-    // Set the maximum file size (5MB)
-    $maxFileSize = 5 * 1024 * 1024; // 5MB
+        // Set the maximum file size (5MB)
+        $maxFileSize = 5 * 1024 * 1024; // 5MB
 
-    // Check if all fields are filled and image is uploaded
-    if (!empty($name) && !empty($email) && !empty($title) && !empty($content) && !empty($image['name'])) {
-        if ($image['size'] > $maxFileSize) {
-            $error = "File size must be less than 5MB.";
-        } else {
-            // Check if user already exists by email
-            $checkUserStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-            $checkUserStmt->bind_param("s", $email);
-            $checkUserStmt->execute();
-            $checkUserStmt->store_result();
-            
-            if ($checkUserStmt->num_rows == 0) {
-                // User does not exist, insert new user
-                $insertUserStmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-                $insertUserStmt->bind_param("ss", $name, $email);
-                $insertUserStmt->execute();
-                $userId = $insertUserStmt->insert_id;
-                $insertUserStmt->close();
+        // Check if all fields are filled and image is uploaded
+        if (!empty($name) && !empty($email) && !empty($title) && !empty($content) && !empty($image['name'])) {
+            if ($image['size'] > $maxFileSize) {
+                $error = "File size must be less than 5MB.";
             } else {
-                // Fetch existing user's ID
-                $checkUserStmt->bind_result($userId);
-                $checkUserStmt->fetch();
+                // Check if user already exists by email
+                $checkUserStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+                $checkUserStmt->bind_param("s", $email);
+                $checkUserStmt->execute();
+                $checkUserStmt->store_result();
+                
+                if ($checkUserStmt->num_rows == 0) {
+                    // User does not exist, insert new user
+                    $insertUserStmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+                    $insertUserStmt->bind_param("ss", $name, $email);
+                    $insertUserStmt->execute();
+                    $userId = $insertUserStmt->insert_id;
+                    $insertUserStmt->close();
+                } else {
+                    // Fetch existing user's ID
+                    $checkUserStmt->bind_result($userId);
+                    $checkUserStmt->fetch();
+                }
+                $checkUserStmt->close();
+
+                // Insert the post
+                $imageData = file_get_contents($image['tmp_name']);
+                $stmt = $conn->prepare("INSERT INTO posts (title, content, image, user_id) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssbi", $title, $content, $imageData, $userId);
+                $stmt->send_long_data(2, $imageData); // For large binary data
+                $stmt->execute();
+                $stmt->close();
+
+                // Redirect after successful insert
+                header('Location: index.php');
             }
-            $checkUserStmt->close();
-
-            // Insert the post
-            $imageData = file_get_contents($image['tmp_name']);
-            $stmt = $conn->prepare("INSERT INTO posts (title, content, image, user_id) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssbi", $title, $content, $imageData, $userId);
-            $stmt->send_long_data(2, $imageData); // For large binary data
-            $stmt->execute();
-            $stmt->close();
-
-            // Redirect after successful insert
-            header('Location: index.php');
+        } else {
+            $error = "All fields are required, and an image must be uploaded.";
         }
-    } else {
-        $error = "All fields are required, and an image must be uploaded.";
     }
-}
 ?>
 
 <!DOCTYPE html>
